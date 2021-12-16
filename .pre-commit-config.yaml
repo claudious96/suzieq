@@ -1,6 +1,6 @@
 ---
 default_language_version:
-  python: python3
+  python: /home/runner/work/suzieq/suzieq/.venv/bin/python
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -16,17 +16,9 @@ repos:
       - id: pylint
         exclude: >
           (?x)^(
-              suzieq/cli/.*|
               suzieq/db/.*|
-              suzieq/engines/.*|
               suzieq/gui/.*|
-              suzieq/poller/.*|
               suzieq/restServer/.*|
-              suzieq/sqobjects/.*|
-              suzieq/utilities/.*|
-              suzieq/gen_schema.py|
-              suzieq/genhosts.py|
-              suzieq/utils.py|
               tests/.*
           )$
 
