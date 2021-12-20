@@ -10,45 +10,59 @@ jobs:
         group: [1, 2, 3, 4]
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         virtualenvs-create: true
         virtualenvs-in-project: true
+
     - name: Load cached venv
       id: cached-poetry-dependencies
       uses: actions/cache@v2
       with:
         path: .venv
-        key: venv-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}
+        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}-${{ hashFiles('poetry.lock') }}
+
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --no-interaction --no-root
+
     - name: Install library
       run: poetry install --no-interaction
+
     - name: Set up suzieq config
       run: cp build/suzieq-cfg-travis.yml suzieq-cfg.yml
+
     - name: Install pytest split
       run: poetry run pip install pytest-split
+
+    - name: Prepare dir for caching durations
+      run: mkdir test_durations
+
     - name: Get durations from cache
       uses: actions/cache@v2
       with:
-        path: .test_durations
+        path: test_durations
         # artificial cache miss to always save at the end of the job and avoid out of sync test runs
         key: test-durations-split-${{ github.run_id }}-${{ github.run_number}}-${{ matrix.group }}
         restore-keys: |
           test-durations
+
     - name: pytest
-      run: poetry run pytest --splits 4 --group ${{ matrix.group }} --store-durations
+      run: poetry run pytest --splits 4 --group ${{ matrix.group }} --store-durations --durations-path test_durations/.test_durations_${{ matrix.python-version }}
+
     - name: Upload partial durations
       uses: actions/upload-artifact@v2
       with:
-        name: duration-chunk-${{ matrix.group }}
-        path: .test_durations
+        retention-days: 1
+        name: duration-chunk-${{ matrix.group }}-python-${{ matrix.python-version }}
+        path: test_durations
 
   update_durations:
     name: Combine and update integration test durations
@@ -61,7 +75,7 @@ jobs:
       - name: Get durations from cache
         uses: actions/cache@v2
         with:
-          path: .test_durations
+          path: test_durations
           # artificial cache miss to always save at the end of the job and avoid out of sync test runs
           key: test-durations-${{ github.sha }}
           restore-keys: |
@@ -70,10 +84,6 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
 
-      - name: Debug
-        run: |
-          ls -la
-          ls -la duration-chunk-1
-
       - name: Merge test durations
-        run: python3 tests/utilities/merge_test_durations_ci.py -p duration-chunk -d .test_durations
+        run: python3 tests/utilities/merge_test_durations_ci.py
+
