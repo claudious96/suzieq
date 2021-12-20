@@ -22,8 +22,8 @@ def merge_durations(filename: str, prefix: str):
             }
         )
 
-    durations_path.parent.mkdir(parents=True, exist_ok=True)
-    durations_path.write_text(json.dumps(new_durations))
+    with open(filename, "w") as f:
+        f.writelines(json.dumps(new_durations))
 
 
 if __name__ == '__main__':
