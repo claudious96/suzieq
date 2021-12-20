@@ -38,7 +38,8 @@ jobs:
         path: test_durations
         # artificial cache miss to always save at the end of the job and avoid out of sync test runs
         key: test-durations-split-${{ github.run_id }}-${{ github.run_number}}-${{ matrix.group }}
-        restore-keys: test-durations
+        restore-keys: |
+          test-durations
     - name: pytest
       run: poetry run pytest --splits 4 --group ${{ matrix.group }} --store-durations
     - name: Upload partial durations
@@ -59,9 +60,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .test_durations
-        # artificial cache miss to always save at the end of the job and avoid out of sync test runs
+          # artificial cache miss to always save at the end of the job and avoid out of sync test runs
           key: test-durations-${{ github.sha }}
-          restore-keys: test-durations
+          restore-keys: |
+            test-durations
 
       - name: Download artifacts
         uses: actions/download-artifact@v2
