@@ -1,5 +1,5 @@
 name: integration-tests
-on: [pull_request]
+on: [pull_request, push]
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -67,6 +67,11 @@ jobs:
 
       - name: Download artifacts
         uses: actions/download-artifact@v2
+
+      - name: Debug
+        run: |
+          ls -la
+          ls -la duration-chunk-1
 
       - name: Merge test durations
         run: python3 tests/utilities/merge_test_durations_ci.py -p duration-chunk -d .test_durations
