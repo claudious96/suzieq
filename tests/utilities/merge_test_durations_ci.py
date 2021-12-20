@@ -22,7 +22,7 @@ def merge_durations(filename: str, prefix: str):
             }
         )
 
-    with open(filename, "w") as f:
+    with open(filename, 'w') as f:
         f.writelines(json.dumps(new_durations))
 
 
