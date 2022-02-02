@@ -4,7 +4,8 @@ on:
     # run on every push only in master and version specific branches
     branches:
       - master
-      - '[0-9].[0-9]+.[0-9]+'
+      - develop
+      - '[0-9].[0-9]+.[0-9]+.[0-9]+?'
   pull_request:
     # run on branches having an open PR
     branches:
